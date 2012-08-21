@@ -26,9 +26,13 @@ import org.hdiv.cipher.CipherHTTP;
 import org.hdiv.cipher.KeyFactory;
 import org.hdiv.config.HDIVConfig;
 import org.hdiv.config.multipart.SpringMVCMultipartConfig;
+import org.hdiv.context.RedirectHelper;
 import org.hdiv.dataComposer.DataComposerFactory;
 import org.hdiv.dataValidator.DataValidatorFactory;
 import org.hdiv.dataValidator.ValidationResult;
+import org.hdiv.events.HDIVFacesEventListener;
+import org.hdiv.exception.HDIVException;
+import org.hdiv.filter.JsfValidatorHelper;
 import org.hdiv.filter.ValidatorHelperRequest;
 import org.hdiv.idGenerator.RandomGuidUidGenerator;
 import org.hdiv.idGenerator.SequentialPageIdGenerator;
@@ -40,6 +44,10 @@ import org.hdiv.state.StateUtil;
 import org.hdiv.urlProcessor.FormUrlProcessor;
 import org.hdiv.urlProcessor.LinkUrlProcessor;
 import org.hdiv.util.EncodingUtil;
+import org.hdiv.validators.EditableValidator;
+import org.hdiv.validators.HtmlInputHiddenValidator;
+import org.hdiv.validators.RequestParameterValidator;
+import org.hdiv.validators.UICommandValidator;
 import org.hdiv.web.servlet.support.HdivRequestDataValueProcessor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -60,6 +68,9 @@ import org.w3c.dom.NodeList;
 public class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 
 	private final boolean springMvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet",
+			AnnotationDrivenBeanDefinitionParser.class.getClassLoader());
+
+	private final boolean jsfPresent = ClassUtils.isPresent("javax.faces.webapp.FacesServlet",
 			AnnotationDrivenBeanDefinitionParser.class.getClassLoader());
 
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
@@ -113,6 +124,26 @@ public class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 					this.createRequestDataValueProcessor(element, source));
 			parserContext.getRegistry().registerBeanDefinition("multipartConfig",
 					this.createSpringMVCMultipartConfig(element, source));
+
+		}
+
+		// register JSF especific beans if we are using this web framework
+		if (this.jsfPresent) {
+
+			parserContext.getRegistry().registerBeanDefinition("HDIVFacesEventListener",
+					this.createFacesEventListener(element, source));
+
+			// Register ComponentValidator objects
+			parserContext.getRegistry().registerBeanDefinition("requestParameterValidator",
+					this.createRequestParameterValidator(element, source));
+			parserContext.getRegistry().registerBeanDefinition("uiCommandValidator",
+					this.createUiCommandValidator(element, source));
+			parserContext.getRegistry().registerBeanDefinition("htmlInputHiddenValidator",
+					this.createHtmlInputHiddenValidator(element, source));
+			parserContext.getRegistry().registerBeanDefinition("editableValidator",
+					this.createEditableValidator(element, source));
+			parserContext.getRegistry().registerBeanDefinition("redirectHelper",
+					this.createRedirectHelper(element, source));
 
 		}
 
@@ -256,7 +287,14 @@ public class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 
 	private RootBeanDefinition createValidatorHelper(Element element, Object source) {
 
-		RootBeanDefinition bean = new RootBeanDefinition(ValidatorHelperRequest.class);
+		RootBeanDefinition bean = null;
+
+		if (this.jsfPresent) {
+			bean = new RootBeanDefinition(JsfValidatorHelper.class);
+		} else {
+			bean = new RootBeanDefinition(ValidatorHelperRequest.class);
+		}
+
 		bean.setSource(source);
 		bean.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 		bean.setInitMethodName("init");
@@ -301,6 +339,57 @@ public class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 		return bean;
 	}
 
+	private RootBeanDefinition createFacesEventListener(Element element, Object source) {
+		RootBeanDefinition bean = new RootBeanDefinition(HDIVFacesEventListener.class);
+		bean.setSource(source);
+		bean.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		bean.getPropertyValues().add("config", new RuntimeBeanReference("config"));
+		bean.getPropertyValues().add("logger", new RuntimeBeanReference("logger"));
+		bean.getPropertyValues().add("htmlInputHiddenValidator", new RuntimeBeanReference("htmlInputHiddenValidator"));
+		bean.getPropertyValues().add("requestParamValidator", new RuntimeBeanReference("requestParameterValidator"));
+		bean.getPropertyValues().add("uiCommandValidator", new RuntimeBeanReference("uiCommandValidator"));
+		bean.getPropertyValues().add("editabeValidator", new RuntimeBeanReference("editableValidator"));
+		return bean;
+	}
+
+	private RootBeanDefinition createRequestParameterValidator(Element element, Object source) {
+		RootBeanDefinition bean = new RootBeanDefinition(RequestParameterValidator.class);
+		bean.setSource(source);
+		bean.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		bean.getPropertyValues().add("hdivConfig", new RuntimeBeanReference("config"));
+		return bean;
+	}
+
+	private RootBeanDefinition createUiCommandValidator(Element element, Object source) {
+		RootBeanDefinition bean = new RootBeanDefinition(UICommandValidator.class);
+		bean.setSource(source);
+		bean.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		return bean;
+	}
+
+	private RootBeanDefinition createHtmlInputHiddenValidator(Element element, Object source) {
+		RootBeanDefinition bean = new RootBeanDefinition(HtmlInputHiddenValidator.class);
+		bean.setSource(source);
+		bean.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		return bean;
+	}
+
+	private RootBeanDefinition createEditableValidator(Element element, Object source) {
+		RootBeanDefinition bean = new RootBeanDefinition(EditableValidator.class);
+		bean.setSource(source);
+		bean.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		bean.getPropertyValues().add("hdivConfig", new RuntimeBeanReference("config"));
+		return bean;
+	}
+
+	private RootBeanDefinition createRedirectHelper(Element element, Object source) {
+		RootBeanDefinition bean = new RootBeanDefinition(RedirectHelper.class);
+		bean.setSource(source);
+		bean.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		bean.getPropertyValues().add("linkUrlProcessor", new RuntimeBeanReference("linkUrlProcessor"));
+		return bean;
+	}
+
 	private RootBeanDefinition createRequestDataValueProcessor(Element element, Object source) {
 		RootBeanDefinition bean = new RootBeanDefinition(HdivRequestDataValueProcessor.class);
 		bean.setSource(source);
@@ -328,14 +417,26 @@ public class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 		String debugMode = element.getAttribute("debugMode");
 
 		if (StringUtils.hasText(confidentiality)) {
+			if (jsfPresent == true && confidentiality.equalsIgnoreCase("true")) {
+				throw new HDIVException(
+						"Confidentiality is not implemented in HDIV for JSF, disable it in hdiv-config.xml");
+			}
 			bean.getPropertyValues().add("confidentiality", confidentiality);
 		}
 
 		if (StringUtils.hasText(avoidCookiesIntegrity)) {
+			if (jsfPresent == true && avoidCookiesIntegrity.equalsIgnoreCase("false")) {
+				throw new HDIVException(
+						"CookiesIntegrity is not implemented in HDIV for JSF, disable it in hdiv-config.xml");
+			}
 			bean.getPropertyValues().add("cookiesIntegrity", avoidCookiesIntegrity);
 		}
 
 		if (StringUtils.hasText(avoidCookiesIntegrity)) {
+			if (jsfPresent == true && avoidCookiesIntegrity.equalsIgnoreCase("false")) {
+				throw new HDIVException(
+						"CookiesConfidentiality is not implemented in HDIV for JSF, disable it in hdiv-config.xml");
+			}
 			bean.getPropertyValues().add("cookiesConfidentiality", cookiesConfidentiality);
 		}
 
