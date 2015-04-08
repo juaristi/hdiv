@@ -220,6 +220,9 @@ public class HdivRequestDataValueProcessor implements RequestDataValueProcessor 
 		}
 
 		String result = this.linkUrlProcessor.processUrl(request, url);
+		
+		request.setAttribute(Constants.LINK_ALREADY_PROCESSED_KEY, "true");
+		
 		return result;
 	}
 

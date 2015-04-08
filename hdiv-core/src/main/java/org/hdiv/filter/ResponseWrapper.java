@@ -15,19 +15,23 @@
  */
 package org.hdiv.filter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hdiv.urlProcessor.LinkUrlProcessor;
 import org.hdiv.util.Constants;
 import org.hdiv.util.HDIVUtil;
 
@@ -256,6 +260,22 @@ public class ResponseWrapper extends HttpServletResponseWrapper {
 	 */
 	public Map<String, SavedCookie> getCookies() {
 		return this.cookies;
+	}
+
+	@Override
+	public void sendRedirect(String location) throws IOException {
+		// TODO cache instances
+		HttpServletRequest request = HDIVUtil.getHttpServletRequest();
+		if (request != null) {
+			String flag = (String) request.getAttribute(Constants.LINK_ALREADY_PROCESSED_KEY);
+			if (flag == null || !flag.equals("true")) {
+
+				ServletContext servletContext = request.getSession().getServletContext();
+				LinkUrlProcessor linkUrlProcessor = HDIVUtil.getLinkUrlProcessor(servletContext);
+				location = linkUrlProcessor.processUrl(request, location);
+			}
+		}
+		super.sendRedirect(location);
 	}
 
 	/**

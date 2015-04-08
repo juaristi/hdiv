@@ -94,5 +94,7 @@ public class Constants {
 	 * Location of the internal resources files
 	 */
 	public static final String MESSAGE_SOURCE_PATH = "org.hdiv.msg.MessageResources";
+	
+	public static final String LINK_ALREADY_PROCESSED_KEY = "HDIV_LINK_PROCESSED_KEY";
 
 }
