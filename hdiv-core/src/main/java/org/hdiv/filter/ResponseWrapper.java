@@ -226,7 +226,7 @@ public class ResponseWrapper extends HttpServletResponseWrapper {
 	@SuppressWarnings("unchecked")
 	protected void updateSessionCookies() {
 
-		HttpSession session = HDIVUtil.getHttpSession();
+		HttpSession session = HDIVUtil.getNonRequiredHttpSession();
 		if (session != null) {
 
 			Map<String, SavedCookie> sessionOriginalCookies = (Map<String, SavedCookie>) session
@@ -248,7 +248,7 @@ public class ResponseWrapper extends HttpServletResponseWrapper {
 	 */
 	protected void removeCookiesFromSession() {
 
-		HttpSession session = HDIVUtil.getHttpSession();
+		HttpSession session = HDIVUtil.getNonRequiredHttpSession();
 		if (session != null) {
 			session.removeAttribute(Constants.HDIV_COOKIES_KEY);
 		}
