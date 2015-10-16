@@ -93,9 +93,6 @@ public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
 				attacksElem = null;
 		
 		try {
-			//
-			// http://www.mkyong.com/java/how-to-create-xml-file-in-java-dom/
-			//
 			doc = this.initXml();
 			
 			rootElem = doc.appendXmlTag(XmlTags.RESPONSE);
