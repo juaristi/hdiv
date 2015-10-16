@@ -37,7 +37,7 @@ public enum XmlTags {
 	NAME("name"),
 	VALUE("value"),
 	ORIGINAL_VALUE("originalValue"),
-	REJECTED_VALUE("rejectedValue");
+	REJECTED_PATTERN("rejectedPattern");
 	
 	private String tagName;
 	private XmlTags(String tagName) {
