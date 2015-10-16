@@ -15,16 +15,28 @@
  */
 package eu.swept.filter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.hdiv.filter.ValidatorError;
 import org.hdiv.filter.ValidatorErrorHandler;
+import org.hdiv.util.HDIVErrorCodes;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -80,10 +92,50 @@ public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
 			
 			return new WifcElement(this.document, childElem);
 		}
+
+		@Override
+		public String toString() {
+			String xml = null;
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			Result result = new StreamResult(os);
+			Source source = new DOMSource(this.document);
+			Transformer transformer = null;
+			
+			try {
+				
+				transformer = TransformerFactory.newInstance().newTransformer();
+				transformer.transform(source, result);
+				
+				xml = os.toString();
+				// TODO Maybe we should use HDIV's full-fledged logger?
+			} catch (TransformerConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TransformerFactoryConfigurationError e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TransformerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return xml;
+		}
 	}
 	
+	/*
+	 * TODO This should go somewhere else because ValidatorErrorHandlers don't get invoked
+	 * when everything went OK.
+	 */
 	private static final String RESPONSE_TYPE_ACCEPTED = "accepted";
 	private static final String RESPONSE_TYPE_REJECTED = "rejected";
+	
+	/*
+	 * MIME type for our XML response.
+	 * TODO It'd be interesting if we could register a new MIME type in IANA for WIFC.
+	 * Maybe "application/wifc+xml" ?
+	 */
+	private static final String XML_CONTENT_TYPE       = "text/xml";
 	
 	public void handleValidatorError(HttpServletRequest request, HttpServletResponse response,
 			List<ValidatorError> errors) {
@@ -104,18 +156,46 @@ public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
 				this.printValidatorError(attacksElem, error);
 			}
 			
+			this.printResponse(response, doc.toString());
+			// TODO Use the full-fledged HDIV logger here
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
-			// TODO Use the full-fledged HDIV logger here
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	/*
-	 * TODO Implement.
+	 * TODO Maybe we should add more attack types here.
 	 */
 	protected void printValidatorError(WifcElement root, ValidatorError error) {
-		return;
+		WifcElement attackRoot = null;
+		
+		if (error.getType().equals(HDIVErrorCodes.EDITABLE_VALIDATION_ERROR)) {
+			attackRoot = root.appendXmlTag(XmlTags.EDITABLE_ATTACK);
+			this.printEditableAttack(attackRoot, error);
+		} else if (error.getType().equals(HDIVErrorCodes.HDIV_PARAMETER_INCORRECT_VALUE)) {
+			attackRoot = root.appendXmlTag(XmlTags.INTEGRITY_ATTACK);
+			this.printIntegrityAttack(attackRoot, error);
+		}
+	}
+	
+	protected void printEditableAttack(WifcElement root, ValidatorError error) {
+		root.appendXmlTag(XmlTags.URL, error.getTarget());
+		root.appendXmlTag(XmlTags.PARAMETER, error.getParameterName());
+		root.appendXmlTag(XmlTags.VALUE, error.getParameterValue());
+		root.appendXmlTag(XmlTags.REJECTED_VALUE, error.getValidationRuleName());
+	}
+	
+	protected void printIntegrityAttack(WifcElement root, ValidatorError error) {
+		root.appendXmlTag(XmlTags.URL, error.getTarget());
+		
+		WifcElement paramRoot = root.appendXmlTag(XmlTags.PARAMETER);
+		paramRoot.appendXmlTag(XmlTags.NAME, error.getParameterName());
+		paramRoot.appendXmlTag(XmlTags.ORIGINAL_VALUE, error.getOriginalParameterValue());
+		paramRoot.appendXmlTag(XmlTags.VALUE, error.getParameterValue());
 	}
 	
 	protected WifcElement initXml() throws ParserConfigurationException {
@@ -123,6 +203,18 @@ public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
 				.newDocumentBuilder()
 				.newDocument();
 		return new WifcElement(doc);
+	}
+	
+	/*
+	 * TODO Implement.
+	 */
+	protected void printResponse(HttpServletResponse servlet, String response) throws IOException {
+		PrintWriter out = servlet.getWriter();
+		
+		servlet.setContentType(XML_CONTENT_TYPE);
+		
+		out.print(response);
+		out.flush();
 	}
 
 }
