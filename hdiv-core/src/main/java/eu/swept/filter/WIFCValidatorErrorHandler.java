@@ -102,31 +102,16 @@ public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
 	 * TODO Maybe we should add more attack types here.
 	 */
 	protected void printValidatorError(WIFCElement root, ValidatorError error) {
-		WIFCElement attackRoot = null;
+		WIFCAttack attack = null;
 		
 		if (error.getType().equals(HDIVErrorCodes.EDITABLE_VALIDATION_ERROR)) {
-			attackRoot = root.appendXmlTag(XmlTags.EDITABLE_ATTACK);
-			this.printEditableAttack(attackRoot, error);
+			attack = new WIFCEditableAttack();
 		} else if (error.getType().equals(HDIVErrorCodes.HDIV_PARAMETER_INCORRECT_VALUE)) {
-			attackRoot = root.appendXmlTag(XmlTags.INTEGRITY_ATTACK);
-			this.printIntegrityAttack(attackRoot, error);
+			attack = new WIFCIntegrityAttack();
 		}
-	}
-	
-	protected void printEditableAttack(WIFCElement root, ValidatorError error) {
-		root.appendXmlTag(XmlTags.URL, error.getTarget());
-		root.appendXmlTag(XmlTags.PARAMETER, error.getParameterName());
-		root.appendXmlTag(XmlTags.VALUE, error.getParameterValue());
-		root.appendXmlTag(XmlTags.REJECTED_PATTERN, error.getValidationRuleName());
-	}
-	
-	protected void printIntegrityAttack(WIFCElement root, ValidatorError error) {
-		root.appendXmlTag(XmlTags.URL, error.getTarget());
 		
-		WIFCElement paramRoot = root.appendXmlTag(XmlTags.PARAMETER);
-		paramRoot.appendXmlTag(XmlTags.NAME, error.getParameterName());
-		paramRoot.appendXmlTag(XmlTags.ORIGINAL_VALUE, error.getOriginalParameterValue());
-		paramRoot.appendXmlTag(XmlTags.VALUE, error.getParameterValue());
+		attack.setAttackRoot(root);
+		attack.printAttack(error);
 	}
 	
 	protected WIFCElement initXml() throws ParserConfigurationException {
