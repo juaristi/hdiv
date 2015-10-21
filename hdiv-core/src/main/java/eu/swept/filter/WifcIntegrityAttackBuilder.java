@@ -35,7 +35,7 @@ public class WifcIntegrityAttackBuilder extends WifcAttackBuilder {
 		if (target != null) {
 			attackRoot.appendXmlTag(XmlTags.URL, target);
 			
-			paramRoot = this.root.appendXmlTag(XmlTags.PARAMETER);
+			paramRoot = attackRoot.appendXmlTag(XmlTags.PARAMETER);
 			
 			if (paramName != null) {
 				paramRoot.appendXmlTag(XmlTags.NAME, paramName);
