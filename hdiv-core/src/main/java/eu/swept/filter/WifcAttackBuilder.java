@@ -21,7 +21,7 @@ import org.hdiv.filter.ValidatorError;
  * WARNING: this class is not thread-safe.
  * @author Ander Juaristi &lt;ander.juaristi@tecnalia.com&gt;
  */
-public class WifcAttackBuilder {
+public abstract class WifcAttackBuilder {
 	
 	protected WifcAttackBuilder concreteWifcAttackBuilder;
 	
@@ -29,24 +29,14 @@ public class WifcAttackBuilder {
 	protected ValidatorError error;
 
 	public static WifcAttackBuilder newEditableAttack() {
-		return newAttack(new WifcEditableAttackBuilder());
+		return new WifcEditableAttackBuilder();
 	}
 	
 	public static WifcAttackBuilder newIntegrityAttack() {
-		return newAttack(new WifcIntegrityAttackBuilder());
-	}
-	
-	protected static WifcAttackBuilder newAttack(WifcAttackBuilder concreteWifcAttackBuilder) {
-		WifcAttackBuilder attackBuilder = new WifcAttackBuilder();
-		attackBuilder.setConcreteAttackBuilder(concreteWifcAttackBuilder);
-		return attackBuilder;
+		return new WifcIntegrityAttackBuilder();
 	}
 	
 	protected WifcAttackBuilder() {
-	}
-
-	protected void setConcreteAttackBuilder(WifcAttackBuilder concreteWifcAttackBuilder) {
-		this.concreteWifcAttackBuilder = concreteWifcAttackBuilder;
 	}
 	
 	public WifcAttackBuilder setRootElement(WIFCElement root) {
@@ -59,10 +49,5 @@ public class WifcAttackBuilder {
 		return this;
 	}
 	
-	/*
-	 * This method must be overridden by subclasses.
-	 */
-	public void build() {
-		throw new RuntimeException("This method is not implemented");
-	}
+	public abstract void build();
 }
