@@ -39,7 +39,7 @@ public class WifcEditableAttackBuilder extends WifcAttackBuilder {
 		}
 		
 		if (paramValue != null) {
-			root.appendXmlTag(XmlTags.VALUE, paramName);
+			root.appendXmlTag(XmlTags.VALUE, paramValue);
 		}
 		
 		if (ruleName != null) {
