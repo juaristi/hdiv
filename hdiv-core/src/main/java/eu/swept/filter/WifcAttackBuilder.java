@@ -25,7 +25,7 @@ public abstract class WifcAttackBuilder {
 	
 	protected WifcAttackBuilder concreteWifcAttackBuilder;
 	
-	protected WIFCElement root;
+	protected WifcElement root;
 	protected ValidatorError error;
 
 	public static WifcAttackBuilder newEditableAttack() {
@@ -39,7 +39,7 @@ public abstract class WifcAttackBuilder {
 	protected WifcAttackBuilder() {
 	}
 	
-	public WifcAttackBuilder setRootElement(WIFCElement root) {
+	public WifcAttackBuilder setRootElement(WifcElement root) {
 		this.root = root;
 		return this;
 	}

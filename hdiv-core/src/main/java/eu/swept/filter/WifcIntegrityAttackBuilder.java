@@ -23,7 +23,7 @@ public class WifcIntegrityAttackBuilder extends WifcAttackBuilder {
 
 	@Override
 	public void build() {
-		WIFCElement attackRoot = null, paramRoot = null;
+		WifcElement attackRoot = null, paramRoot = null;
 		
 		String target = this.error.getTarget();
 		String paramName = this.error.getParameterName();

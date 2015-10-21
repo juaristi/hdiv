@@ -28,7 +28,7 @@ public class WifcEditableAttackBuilder extends WifcAttackBuilder {
 		String paramValue = this.error.getParameterValue();
 		String ruleName = this.error.getValidationRuleName();
 		
-		WIFCElement root = this.root.appendXmlTag(XmlTags.EDITABLE_ATTACK);
+		WifcElement root = this.root.appendXmlTag(XmlTags.EDITABLE_ATTACK);
 		
 		if (target != null) {
 			root.appendXmlTag(XmlTags.URL, target);

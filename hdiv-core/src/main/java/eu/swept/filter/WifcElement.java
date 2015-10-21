@@ -44,25 +44,25 @@ import org.w3c.dom.Node;
  *  @author Ander Juaristi &lt;ander.juaristi@tecnalia.com&gt;
  *  @since 2.1.13
  */
-public class WIFCElement {
+public class WifcElement {
 	private Document document;
 	private Node element;
 	
-	public WIFCElement(Document document) {
+	public WifcElement(Document document) {
 		this.document = document;
 		this.element = null;
 	}
 	
-	public WIFCElement(Document document, Node element) {
+	public WifcElement(Document document, Node element) {
 		this.document = document;
 		this.element = element;
 	}
 	
-	public WIFCElement appendXmlTag(XmlTags xmlTag) {
+	public WifcElement appendXmlTag(XmlTags xmlTag) {
 		return this.appendXmlTag(xmlTag, null);
 	}
 	
-	public WIFCElement appendXmlTag(XmlTags xmlTag, String content) {
+	public WifcElement appendXmlTag(XmlTags xmlTag, String content) {
 		Node elem = (this.element == null ? this.document : this.element);
 		Element childElem = this.document.createElement(xmlTag.toString());
 		
@@ -72,7 +72,7 @@ public class WIFCElement {
 			childElem.appendChild(this.document.createTextNode(content));
 		}
 		
-		return new WIFCElement(this.document, childElem);
+		return new WifcElement(this.document, childElem);
 	}
 
 	@Override
@@ -106,11 +106,11 @@ public class WIFCElement {
 
 	@Override
 	public boolean equals(Object obj) {
-		WIFCElement other = null;
+		WifcElement other = null;
 		boolean equal = false;
 		
-		if (obj instanceof WIFCElement) {
-			other = (WIFCElement) obj;
+		if (obj instanceof WifcElement) {
+			other = (WifcElement) obj;
 			equal = other.toString().equals(this.toString());
 		}
 		

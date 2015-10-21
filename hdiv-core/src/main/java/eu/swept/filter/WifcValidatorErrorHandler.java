@@ -37,7 +37,7 @@ import org.w3c.dom.Document;
  * @author Ander Juaristi &lt;ander.juaristi@tecnalia.com&gt;
  * @since 2.1.13
  */
-public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
+public class WifcValidatorErrorHandler implements ValidatorErrorHandler {
 	
 	/*
 	 * TODO This should go somewhere else because ValidatorErrorHandlers don't get invoked
@@ -61,7 +61,7 @@ public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
 	public void handleValidatorError(HttpServletRequest request, HttpServletResponse response,
 			List<ValidatorError> errors) {
 		
-		WIFCElement doc = null,
+		WifcElement doc = null,
 				rootElem = null,
 				attacksElem = null;
 		
@@ -99,7 +99,7 @@ public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
 	/*
 	 * TODO How do we handle all the attack types other than EDITABLE_VALIDATION_ERROR?
 	 */
-	protected void printValidatorErrors(List<ValidatorError> errors, WIFCElement root) {
+	protected void printValidatorErrors(List<ValidatorError> errors, WifcElement root) {
 		WifcAttackBuilder attackBuilder = null;
 		
 		for (ValidatorError error : errors) {
@@ -120,11 +120,11 @@ public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
 		}
 	}
 	
-	protected WIFCElement initXml() throws ParserConfigurationException {
+	protected WifcElement initXml() throws ParserConfigurationException {
 		Document doc = DocumentBuilderFactory.newInstance()
 				.newDocumentBuilder()
 				.newDocument();
-		return new WIFCElement(doc);
+		return new WifcElement(doc);
 	}
 	
 	/*
