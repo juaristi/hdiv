@@ -23,15 +23,17 @@ public class WifcIntegrityAttackBuilder extends WifcAttackBuilder {
 
 	@Override
 	public void build() {
-		WIFCElement paramRoot = null;
+		WIFCElement attackRoot = null, paramRoot = null;
 		
 		String target = this.error.getTarget();
 		String paramName = this.error.getParameterName();
 		String paramValue = this.error.getParameterValue();
 		String paramOriginalValue = this.error.getOriginalParameterValue();
 		
+		attackRoot = this.root.appendXmlTag(XmlTags.INTEGRITY_ATTACK);
+		
 		if (target != null) {
-			this.root.appendXmlTag(XmlTags.URL, target);
+			attackRoot.appendXmlTag(XmlTags.URL, target);
 			
 			paramRoot = this.root.appendXmlTag(XmlTags.PARAMETER);
 			

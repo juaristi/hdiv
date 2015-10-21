@@ -28,20 +28,22 @@ public class WifcEditableAttackBuilder extends WifcAttackBuilder {
 		String paramValue = this.error.getParameterValue();
 		String ruleName = this.error.getValidationRuleName();
 		
+		WIFCElement root = this.root.appendXmlTag(XmlTags.EDITABLE_ATTACK);
+		
 		if (target != null) {
-			this.root.appendXmlTag(XmlTags.URL, target);
+			root.appendXmlTag(XmlTags.URL, target);
 		}
 		
 		if (paramName != null) {
-			this.root.appendXmlTag(XmlTags.PARAMETER, paramName);
+			root.appendXmlTag(XmlTags.PARAMETER, paramName);
 		}
 		
 		if (paramValue != null) {
-			this.root.appendXmlTag(XmlTags.VALUE, paramName);
+			root.appendXmlTag(XmlTags.VALUE, paramName);
 		}
 		
 		if (ruleName != null) {
-			this.root.appendXmlTag(XmlTags.REJECTED_PATTERN, ruleName);
+			root.appendXmlTag(XmlTags.REJECTED_PATTERN, ruleName);
 		}
 	}
 }
