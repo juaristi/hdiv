@@ -103,4 +103,17 @@ public class WIFCElement {
 		
 		return xml;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		WIFCElement other = null;
+		boolean equal = false;
+		
+		if (obj instanceof WIFCElement) {
+			other = (WIFCElement) obj;
+			equal = other.toString().equals(this.toString());
+		}
+		
+		return equal;
+	}
 }

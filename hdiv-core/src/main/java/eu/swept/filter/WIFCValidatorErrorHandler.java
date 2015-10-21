@@ -73,9 +73,7 @@ public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
 			
 			attacksElem = rootElem.appendXmlTag(XmlTags.ATTACKS);
 			
-			for (ValidatorError error : errors) {
-				this.printValidatorError(attacksElem, error);
-			}
+			this.printValidatorErrors(errors, attacksElem);
 			
 			this.printResponse(response, doc.toString());
 			// TODO Use the full-fledged HDIV logger here
@@ -99,19 +97,27 @@ public class WIFCValidatorErrorHandler implements ValidatorErrorHandler {
 	}
 	
 	/*
-	 * TODO Maybe we should add more attack types here.
+	 * TODO How do we handle all the attack types other than EDITABLE_VALIDATION_ERROR?
 	 */
-	protected void printValidatorError(WIFCElement root, ValidatorError error) {
-		WIFCAttack attack = null;
+	protected void printValidatorErrors(List<ValidatorError> errors, WIFCElement root) {
+		WifcAttackBuilder attackBuilder = null;
 		
-		if (error.getType().equals(HDIVErrorCodes.EDITABLE_VALIDATION_ERROR)) {
-			attack = new WIFCEditableAttack();
-		} else if (error.getType().equals(HDIVErrorCodes.HDIV_PARAMETER_INCORRECT_VALUE)) {
-			attack = new WIFCIntegrityAttack();
+		for (ValidatorError error : errors) {
+			/*
+			 * There's only one kind of editable validation error type.
+			 * All the others are integrity errors.
+			 */
+			if (error.getType().equals(HDIVErrorCodes.EDITABLE_VALIDATION_ERROR)) {
+				attackBuilder = WifcAttackBuilder.newEditableAttack();
+			} else {
+				attackBuilder = WifcAttackBuilder.newIntegrityAttack();
+			}
+			
+			attackBuilder
+				.setRootElement(root)
+				.setValidatorError(error);
+			attackBuilder.build();
 		}
-		
-		attack.setAttackRoot(root);
-		attack.printAttack(error);
 	}
 	
 	protected WIFCElement initXml() throws ParserConfigurationException {
