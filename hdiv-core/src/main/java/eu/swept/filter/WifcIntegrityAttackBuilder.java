@@ -15,12 +15,21 @@
  */
 package eu.swept.filter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * @author aja
- *
+ * @author Ander Juaristi &lt;ander.juaristi@tecnalia.com&gt;
  */
 public class WifcIntegrityAttackBuilder extends WifcAttackBuilder {
 
+	private Map<String, WifcElement> existingTags;
+	
+	protected WifcIntegrityAttackBuilder() {
+		super();
+		this.existingTags = new HashMap<String, WifcElement>();
+	}
+	
 	@Override
 	public void build() {
 		WifcElement attackRoot = null, paramRoot = null;
@@ -30,10 +39,18 @@ public class WifcIntegrityAttackBuilder extends WifcAttackBuilder {
 		String paramValue = this.error.getParameterValue();
 		String paramOriginalValue = this.error.getOriginalParameterValue();
 		
-		attackRoot = this.root.appendXmlTag(XmlTags.INTEGRITY_ATTACK);
-		
 		if (target != null) {
-			attackRoot.appendXmlTag(XmlTags.URL, target);
+			/*
+			 * Try to get an existing <integrityAttack> key.
+			 * If no such tag is found for the current target, then create a new one.
+			 */
+			if (this.existingTags.containsKey(target)) {
+				attackRoot = this.existingTags.get(target);
+			} else {
+				attackRoot = this.root.appendXmlTag(XmlTags.INTEGRITY_ATTACK);
+				attackRoot.appendXmlTag(XmlTags.URL, target);
+				this.existingTags.put(target, attackRoot);
+			}
 			
 			paramRoot = attackRoot.appendXmlTag(XmlTags.PARAMETER);
 			
