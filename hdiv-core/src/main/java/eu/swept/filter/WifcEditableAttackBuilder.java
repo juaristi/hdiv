@@ -16,8 +16,8 @@
 package eu.swept.filter;
 
 /**
- * @author aja
- *
+ * @author Ander Juaristi &lt;ander.juaristi@tecnalia.com&gt;
+ * @since 2.1.13
  */
 public class WifcEditableAttackBuilder extends WifcAttackBuilder {
 	

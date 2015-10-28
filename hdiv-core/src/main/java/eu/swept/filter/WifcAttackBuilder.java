@@ -20,6 +20,7 @@ import org.hdiv.filter.ValidatorError;
 /**
  * WARNING: this class is not thread-safe.
  * @author Ander Juaristi &lt;ander.juaristi@tecnalia.com&gt;
+ * @since 2.1.13
  */
 public abstract class WifcAttackBuilder {
 	
