@@ -27,6 +27,7 @@ public class WifcEditableAttackBuilder extends WifcAttackBuilder {
 		String paramName = this.error.getParameterName();
 		String paramValue = this.error.getParameterValue();
 		String ruleName = this.error.getValidationRuleName();
+		String attackType = this.error.getType();
 		
 		WifcElement root = this.root.appendXmlTag(XmlTags.EDITABLE_ATTACK);
 		
@@ -44,6 +45,10 @@ public class WifcEditableAttackBuilder extends WifcAttackBuilder {
 		
 		if (ruleName != null) {
 			root.appendXmlTag(XmlTags.REJECTED_PATTERN, ruleName);
+		}
+		
+		if (attackType != null) {
+			root.appendXmlTag(XmlTags.ATTACK_TYPE, attackType);
 		}
 	}
 }

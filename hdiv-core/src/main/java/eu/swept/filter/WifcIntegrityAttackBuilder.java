@@ -39,6 +39,7 @@ public class WifcIntegrityAttackBuilder extends WifcAttackBuilder {
 		String paramName = this.error.getParameterName();
 		String paramValue = this.error.getParameterValue();
 		String paramOriginalValue = this.error.getOriginalParameterValue();
+		String attackType = this.error.getType();
 		
 		if (target != null) {
 			/*
@@ -50,6 +51,11 @@ public class WifcIntegrityAttackBuilder extends WifcAttackBuilder {
 			} else {
 				attackRoot = this.root.appendXmlTag(XmlTags.INTEGRITY_ATTACK);
 				attackRoot.appendXmlTag(XmlTags.URL, target);
+				
+				if (attackType != null) {
+					attackRoot.appendXmlTag(XmlTags.ATTACK_TYPE, attackType);
+				}
+				
 				this.existingTags.put(target, attackRoot);
 			}
 			
